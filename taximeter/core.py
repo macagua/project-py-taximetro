@@ -4,25 +4,33 @@ import time
 from decimal import Decimal, ROUND_HALF_UP
 from typing import Callable
 
-# Tariffs (Zona EMT Madrid, June 2025)
+from taximeter.config import Tariffs, load as load_tariffs
+
+# Default tariffs kept as module constants for tests that build Ride directly.
 RATE_STOPPED: Decimal = Decimal("0.02")  # €/second when stopped or <20 km/h
 RATE_MOVING:  Decimal = Decimal("0.05")  # €/second when moving
+
+_DEFAULT_TARIFFS = Tariffs(RATE_STOPPED, RATE_MOVING)
 
 
 class Ride:
     """Tracks the state and accumulated fare for a single trip.
 
     Args:
-        now: Callable that returns a monotonic float (seconds).
-             Defaults to time.monotonic.  Pass a fake clock in tests
-             to advance time without sleeping.
+        now:     Callable returning a monotonic float. Defaults to time.monotonic.
+        tariffs: Tariff rates to apply. Defaults to module-level defaults.
 
     Initial state is STOPPED (parado) — lower rate protects the passenger
     if the system starts while the taxi is waiting at a traffic light.
     """
 
-    def __init__(self, now: Callable[[], float] = time.monotonic) -> None:
+    def __init__(
+        self,
+        now: Callable[[], float] = time.monotonic,
+        tariffs: Tariffs = _DEFAULT_TARIFFS,
+    ) -> None:
         self._now = now
+        self._tariffs = tariffs
         self._state: str = "parado"       # "parado" | "en_marcha"
         self._fare: Decimal = Decimal("0")
         self._started_at: float = now()
@@ -45,7 +53,7 @@ class Ride:
         """Accumulate fare from _last_tick to now at the current rate."""
         now = self._now()
         elapsed = Decimal(str(now - self._last_tick))
-        rate = RATE_MOVING if self._state == "en_marcha" else RATE_STOPPED
+        rate = self._tariffs.moving if self._state == "en_marcha" else self._tariffs.stopped
         self._fare += elapsed * rate
         self._last_tick = now
 
@@ -88,8 +96,8 @@ class Taximeter:
         self._current_ride: Ride | None = None
 
     def start_ride(self) -> Ride:
-        """Create and return a new Ride."""
-        self._current_ride = Ride(now=self._now)
+        """Create and return a new Ride with tariffs loaded from config."""
+        self._current_ride = Ride(now=self._now, tariffs=load_tariffs())
         return self._current_ride
 
     @property

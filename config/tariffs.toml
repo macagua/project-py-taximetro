@@ -1,0 +1,6 @@
+# Tarifas Zona EMT Madrid — junio 2025
+# Unidades: euros por segundo
+
+[tariffs]
+stopped = 0.02   # parado o velocidad < 20 km/h
+moving  = 0.05   # en movimiento
