@@ -14,10 +14,11 @@ _BANNER = """
 ==================================================
 """
 
-_RIDE_HEADER = """
---- Carrera iniciada ---
-Estado: PARADO
-(próxima historia: comandos p / m / f)
+_RIDE_BANNER = """
+--- Carrera iniciada (estado: PARADO) ---
+  [m]  En marcha  (0.05 €/s)
+  [p]  Parado     (0.02 €/s)
+  [f]  Finalizar carrera
 """
 
 
@@ -31,13 +32,31 @@ def show_banner() -> None:
 
 
 def ride_loop(ride) -> None:
-    """Inner loop for an active ride.
+    """Inner loop for an active ride: p / m / f commands."""
+    print(_RIDE_BANNER)
+    while True:
+        try:
+            cmd = input("Carrera> ").strip().lower()
+        except (EOFError, KeyboardInterrupt):
+            print("\nCarrera interrumpida.")
+            return
 
-    US-01 stub: returns after one Enter press.
-    US-02 will replace the body with p / m / f commands.
-    """
-    print(_RIDE_HEADER)
-    input("Pulsa Enter para volver al menú principal... ")
+        if cmd == "m":
+            if ride.set_moving():
+                print("  EN MARCHA  (0.05 €/s)")
+            else:
+                print("  Ya estás en marcha.")
+        elif cmd == "p":
+            if ride.set_stopped():
+                print("  PARADO     (0.02 €/s)")
+            else:
+                print("  Ya estás parado.")
+        elif cmd == "f":
+            total = ride.finish()
+            print(f"\n  Total: {total} €\n")
+            return
+        else:
+            print(f"  Comando '{cmd}' no reconocido. Opciones: m, p, f")
 
 
 def main_loop(taximeter: Taximeter) -> None:
