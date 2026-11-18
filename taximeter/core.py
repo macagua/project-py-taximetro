@@ -25,7 +25,8 @@ class Ride:
         self._now = now
         self._state: str = "parado"       # "parado" | "en_marcha"
         self._fare: Decimal = Decimal("0")
-        self._last_tick: float = now()
+        self._started_at: float = now()
+        self._last_tick: float = self._started_at
 
     @property
     def state(self) -> str:
@@ -63,6 +64,11 @@ class Ride:
         self._tick()
         self._state = "en_marcha"
         return True
+
+    @property
+    def duration_s(self) -> float:
+        """Elapsed seconds since the ride started (up to the last tick)."""
+        return self._last_tick - self._started_at
 
     def finish(self) -> Decimal:
         """Close the ride and return the total fare (ROUND_HALF_UP)."""
