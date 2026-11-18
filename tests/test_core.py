@@ -74,3 +74,19 @@ class TestRedundantCommand:
         ride = make_ride(0.0, 10.0, 10.0)
         ride.set_stopped()   # redundant — returns False, no tick
         assert ride.finish() == Decimal("0.20")
+
+
+class TestRounding:
+    def test_round_half_up_not_half_even(self):
+        # 0.1s moving: 0.1 * 0.05 = 0.005
+        # ROUND_HALF_UP → 0.01; ROUND_HALF_EVEN → 0.00 (rounds to even)
+        ride = make_ride(0.0, 0.0, 0.1)
+        ride.set_moving()   # ticks at 0 (0s stopped = 0€), state→en_marcha
+        assert ride.finish() == Decimal("0.01")
+
+    def test_finish_returns_two_decimal_places(self):
+        # Verify the Decimal always has exactly 2 decimal places
+        ride = make_ride(0.0, 1.0)
+        total = ride.finish()
+        assert total == total.quantize(Decimal("0.01"))
+        assert str(total) == "0.02"
