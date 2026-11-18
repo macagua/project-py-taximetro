@@ -2,7 +2,7 @@
 
 from string import Template
 from taximeter.core import Taximeter
-from taximeter import history
+from taximeter import history, logs
 import taximeter
 
 _BANNER = """
@@ -35,30 +35,44 @@ def show_banner() -> None:
 
 def ride_loop(ride) -> None:
     """Inner loop for an active ride: p / m / f commands."""
+    log = logs.get()
+    log.info("Carrera iniciada")
     print(_RIDE_BANNER)
     while True:
         try:
             cmd = input("Carrera> ").strip().lower()
         except (EOFError, KeyboardInterrupt):
+            log.warning("Carrera interrumpida por el usuario")
             print("\nCarrera interrumpida.")
             return
 
         if cmd == "m":
             if ride.set_moving():
+                log.info("Estado → EN MARCHA")
                 print("  EN MARCHA  (0.05 €/s)")
             else:
+                log.debug("Comando m redundante (ya en marcha)")
                 print("  Ya estás en marcha.")
         elif cmd == "p":
             if ride.set_stopped():
+                log.info("Estado → PARADO")
                 print("  PARADO     (0.02 €/s)")
             else:
+                log.debug("Comando p redundante (ya parado)")
                 print("  Ya estás parado.")
         elif cmd == "f":
-            total = ride.finish()
-            history.save(ride.duration_s, total)
+            try:
+                total = ride.finish()
+                history.save(ride.duration_s, total)
+            except Exception:
+                log.exception("Error al finalizar carrera")
+                print("  Error al guardar la carrera. Consulta el log.")
+                return
+            log.info("Carrera finalizada — duración %.1f s, total %s €", ride.duration_s, total)
             print(f"\n  Total: {total} €\n")
             return
         else:
+            log.debug("Comando desconocido en carrera: %r", cmd)
             print(f"  Comando '{cmd}' no reconocido. Opciones: m, p, f")
 
 
@@ -97,7 +111,10 @@ def main_loop(taximeter: Taximeter) -> None:
 
 def main() -> None:
     """Main program"""
+    logs.setup()
+    logs.get().info("Taxímetro arrancado")
     # Show banner and start the main loop
     show_banner()
     # Create an instance of Taximeter and run the main
     main_loop(Taximeter())
+    logs.get().info("Taxímetro cerrado")

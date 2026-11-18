@@ -7,3 +7,4 @@ __pycache__
 
 # Taximeter data
 data/*.jsonl
+logs/*.log
