@@ -2,6 +2,7 @@
 
 from string import Template
 from taximeter.core import Taximeter
+from taximeter import history
 import taximeter
 
 _BANNER = """
@@ -10,6 +11,7 @@ _BANNER = """
 ==================================================
   Comandos disponibles:
     [s]  Iniciar carrera
+    [h]  Historial de hoy
     [q]  Salir del programa
 ==================================================
 """
@@ -53,6 +55,7 @@ def ride_loop(ride) -> None:
                 print("  Ya estás parado.")
         elif cmd == "f":
             total = ride.finish()
+            history.save(ride.duration_s, total)
             print(f"\n  Total: {total} €\n")
             return
         else:
@@ -76,11 +79,20 @@ def main_loop(taximeter: Taximeter) -> None:
             ride = taximeter.start_ride()
             ride_loop(ride)
             print("Nueva carrera [s]  |  Salir [q]")
+        elif cmd == "h":
+            count, total = history.summary_today()
+            if count == 0:
+                print("  Sin carreras hoy.")
+            else:
+                print(f"\n  Carreras hoy: {count}  |  Total acumulado: {total} €\n")
+                for i, r in enumerate(history.rides_today(), 1):
+                    print(f"  {i}. {r['fecha']}  {r['duracion_s']} s  {r['total_eur']} €")
+                print()
         elif cmd == "q":
             print("Cerrando taxímetro. ¡Hasta pronto!")
             break
         else:
-            print(f"Comando '{cmd}' no reconocido. Opciones: s (iniciar), q (salir)")
+            print(f"Comando '{cmd}' no reconocido. Opciones: s (iniciar), h (historial), q (salir)")
 
 
 def main() -> None:
