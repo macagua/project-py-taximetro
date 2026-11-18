@@ -1,0 +1,14 @@
+[project]
+name = "taximeter"
+version = "0.1.0"
+description = "TaxiTech Solutions — Taxímetro Digital"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+taximeter = "taximeter.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
