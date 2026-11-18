@@ -75,6 +75,7 @@ def main_loop(taximeter: Taximeter) -> None:
         if cmd == "s":
             ride = taximeter.start_ride()
             ride_loop(ride)
+            print("Nueva carrera [s]  |  Salir [q]")
         elif cmd == "q":
             print("Cerrando taxímetro. ¡Hasta pronto!")
             break
