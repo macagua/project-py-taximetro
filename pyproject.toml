@@ -12,3 +12,8 @@ taximeter = "taximeter.cli:main"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+]

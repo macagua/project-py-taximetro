@@ -36,6 +36,39 @@ class Ride:
         """Current accumulated fare rounded to 2 decimal places."""
         return self._fare.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
+    # ------------------------------------------------------------------
+    # Commands
+    # ------------------------------------------------------------------
+
+    def _tick(self) -> None:
+        """Accumulate fare from _last_tick to now at the current rate."""
+        now = self._now()
+        elapsed = Decimal(str(now - self._last_tick))
+        rate = RATE_MOVING if self._state == "en_marcha" else RATE_STOPPED
+        self._fare += elapsed * rate
+        self._last_tick = now
+
+    def set_stopped(self) -> bool:
+        """Switch to stopped state. Returns False if already stopped."""
+        if self._state == "parado":
+            return False
+        self._tick()
+        self._state = "parado"
+        return True
+
+    def set_moving(self) -> bool:
+        """Switch to moving state. Returns False if already moving."""
+        if self._state == "en_marcha":
+            return False
+        self._tick()
+        self._state = "en_marcha"
+        return True
+
+    def finish(self) -> Decimal:
+        """Close the ride and return the total fare (ROUND_HALF_UP)."""
+        self._tick()
+        return self.fare
+
 
 class Taximeter:
     """Orchestrates rides. Holds at most one active ride at a time.
