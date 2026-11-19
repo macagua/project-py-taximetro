@@ -152,7 +152,7 @@ Cada fase debe entregarse con:
 
 ### Instalación
 
-Para consultar la guía de instalación consulte el archivo [DEVELOP.md](./INSTALL.md).
+Para consultar la guía de instalación consulte el archivo [INSTALL.md](./INSTALL.md).
 
 ---
 
