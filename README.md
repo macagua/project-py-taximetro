@@ -148,6 +148,45 @@ Cada fase debe entregarse con:
 
 ---
 
+## 📸 Captura de pantalla
+
+### Aplicación Conductor - Inicio de sesión
+
+<img width="400" alt="" src="./docs/images/screenshot-1.png" />
+
+---
+
+### Aplicación Conductor - Carreras
+
+<img width="400" alt="Aplicación Conductor - Carreras" src="./docs/images/screenshot-2.png" />
+
+---
+
+### Aplicación Resposable - Inicio de sesión
+
+<img width="400" alt="Aplicación Resposable - Inicio de sesión" src="./docs/images/screenshot-3.png" />
+
+---
+
+### Aplicación Resposable - Tablero
+
+<img width="400" alt="Aplicación Resposable - Tablero" src="./docs/images/screenshot-4.png" />
+
+---
+
+### Aplicación Resposable - Listado de Carreras
+
+<img width="400" alt="Aplicación Resposable - Listado de Carreras" src="./docs/images/screenshot-5.png" />
+
+---
+
+### Aplicación API - Documentación
+
+<img width="400" alt="Aplicación API - Documentación" src="./docs/images/screenshot-6.png" />
+
+
+---
+
 ## 📖 Documentación
 
 ### Instalación
