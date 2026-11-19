@@ -1,14 +1,13 @@
-[![pre-commit](https://github.com/macagua/project-py-taximetro/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/macagua/project-py-taximetro/actions/workflows/pre-commit.yml)
-
 <img width="11520" height="3456" alt="Copia de Banner notebooks" src="https://github.com/user-attachments/assets/1c187a02-2294-4f4b-ba84-63766c051a15" />
 
 # 🚕 TaxiTech Solutions — Sistema de Taxímetro Digital
 
 <div align="center">
 
-![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)
-![Estado](https://img.shields.io/badge/Estado-En%20desarrollo-yellow)
-![Sprint](https://img.shields.io/badge/Sprint-1-orange)
+[![pre-commit](https://github.com/macagua/project-py-taximetro/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/macagua/project-py-taximetro/actions/workflows/pre-commit.yml)
+![Python](https://img.shields.io/badge/Python-3.12%2B-blue?logo=python&logoColor=white)
+![Estado](https://img.shields.io/badge/Estado-Alfa-yellow)
+![Sprint](https://img.shields.io/badge/Sprint-4-orange)
 ![Prioridad](https://img.shields.io/badge/Prioridad-Alta-red)
 
 </div>
