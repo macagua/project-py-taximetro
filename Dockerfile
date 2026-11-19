@@ -8,10 +8,12 @@ WORKDIR /app
 # Install OS deps needed by some Python packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
         curl \
+        unzip \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python deps (cached layer — only invalidated by lockfile changes)
-COPY pyproject.toml uv.lock .python-version ./
+# .python-version is excluded: FROM python:3.12-slim already provides 3.12
+COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-install-project
 
 # Copy application source
