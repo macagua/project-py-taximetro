@@ -18,5 +18,8 @@ logs/*.log
 # Sqlite3
 *.sqlite3
 
+# Django collected static files
+staticfiles/
+
 # Environment secrets
 .env
