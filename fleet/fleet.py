@@ -16,6 +16,63 @@ from taximeter import history
 
 
 # ---------------------------------------------------------------------------
+# History State
+# ---------------------------------------------------------------------------
+
+class HistoryState(AppState):
+    """State for the /history page."""
+
+    selected_date: str = ""           # YYYY-MM-DD; empty → today
+    rides: list[dict] = []
+    total_hoy: str = "0.00"
+    ride_count: int = 0
+
+    @rx.event
+    @login_required
+    async def load_history(self):
+        from datetime import date as _date
+        from django.utils import timezone as tz
+        from fleet.models import Ride
+
+        if not self.selected_date:
+            self.selected_date = tz.localdate().isoformat()
+
+        target = _date.fromisoformat(self.selected_date)
+        # Django 6 async ORM — avoids SynchronousOnlyOperation inside the
+        # running asyncio event loop that Reflex/ASGI maintains.
+        rows = []
+        async for r in Ride.objects.select_related("driver").filter(
+            driver=self.request.user,
+            status=Ride.STATUS_DONE,
+            fecha__date=target,
+        ).order_by("-fecha"):
+            rows.append({
+                "hora": r.fecha.astimezone().strftime("%H:%M:%S"),
+                "duracion": f"{r.duracion_s:.0f} s" if r.duracion_s is not None else "—",
+                "total": f"{r.total_eur} €" if r.total_eur is not None else "—",
+                "conductor": (
+                    f"{r.driver.first_name} {r.driver.last_name}".strip()
+                    or r.driver.username
+                ) if r.driver_id else "—",
+            })
+
+        self.rides = rows
+        self.ride_count = len(rows)
+        total = sum(
+            Decimal(r["total"].replace(" €", ""))
+            for r in rows
+            if r["total"] != "—"
+        )
+        self.total_hoy = str(total) + " €"
+
+    @rx.event
+    @login_required
+    def handle_date_change(self, value: str):
+        self.selected_date = value
+        return HistoryState.load_history
+
+
+# ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
@@ -98,14 +155,14 @@ class TaxiState(AppState):
 
     @rx.event
     @login_required
-    def finish_ride(self):
+    async def finish_ride(self):
         if not self.ride_active:
             return
         fare = _fare_from_segments(
             self.segments, self.segment_start, self.vehicle_state
         )
         duration = time.monotonic() - self.ride_start
-        history.save(duration, fare)
+        await history.asave(duration, fare, driver=self.request.user)
         self.fare_display = str(fare)
         self.ride_active = False
         self.segments = []
@@ -194,6 +251,10 @@ def taximeter_page_content() -> rx.Component:
             rx.hstack(
                 rx.heading("Taxímetro", size="6"),
                 rx.spacer(),
+                rx.link(
+                    rx.button("Historial", variant="soft", size="2"),
+                    href="/history",
+                ),
                 rx.button("Salir", on_click=TaxiState.logout, variant="ghost", size="2"),
                 width="100%",
             ),
@@ -241,6 +302,100 @@ def taximeter_page_content() -> rx.Component:
 
 
 # ---------------------------------------------------------------------------
+# History page components
+# ---------------------------------------------------------------------------
+
+def _history_table() -> rx.Component:
+    return rx.cond(
+        HistoryState.ride_count == 0,
+        rx.callout(
+            "No hay carreras para esta fecha.",
+            icon="info",
+            color_scheme="gray",
+        ),
+        rx.table.root(
+            rx.table.header(
+                rx.table.row(
+                    rx.table.column_header_cell("Hora"),
+                    rx.table.column_header_cell("Duración"),
+                    rx.table.column_header_cell("Total"),
+                    rx.table.column_header_cell("Conductor"),
+                )
+            ),
+            rx.table.body(
+                rx.foreach(
+                    HistoryState.rides,
+                    lambda r: rx.table.row(
+                        rx.table.cell(r["hora"]),
+                        rx.table.cell(r["duracion"]),
+                        rx.table.cell(r["total"], weight="bold"),
+                        rx.table.cell(r["conductor"], color_scheme="gray"),
+                    ),
+                )
+            ),
+            variant="surface",
+            width="100%",
+        ),
+    )
+
+
+def history_page_content() -> rx.Component:
+    return rx.container(
+        rx.vstack(
+            # Header
+            rx.hstack(
+                rx.heading("Historial de carreras", size="6"),
+                rx.spacer(),
+                rx.link(
+                    rx.button("← Taxímetro", variant="ghost", size="2"),
+                    href="/",
+                ),
+                width="100%",
+            ),
+            rx.divider(),
+
+            # Date filter
+            rx.hstack(
+                rx.text("Fecha:", size="3", weight="medium"),
+                rx.input(
+                    type="date",
+                    value=HistoryState.selected_date,
+                    on_change=HistoryState.handle_date_change,
+                    size="2",
+                ),
+                align="center",
+                spacing="3",
+            ),
+
+            # Summary row
+            rx.hstack(
+                rx.badge(
+                    HistoryState.ride_count.to_string() + " carrera(s)",
+                    color_scheme="blue",
+                    size="2",
+                ),
+                rx.badge(
+                    "Total: " + HistoryState.total_hoy,
+                    color_scheme="green",
+                    size="2",
+                ),
+                spacing="3",
+            ),
+
+            # Rides table
+            _history_table(),
+
+            spacing="5",
+            padding="1.5em",
+            max_width="720px",
+            margin="0 auto",
+            width="100%",
+        ),
+        padding_x="1em",
+    )
+
+
+# ---------------------------------------------------------------------------
 # Pages
 # ---------------------------------------------------------------------------
 
@@ -249,10 +404,16 @@ def index() -> rx.Component:
     return taximeter_page_content()
 
 
+@page(route="/history", login_required=True, on_load=HistoryState.load_history)
+def history_page() -> rx.Component:
+    return history_page_content()
+
+
 # ---------------------------------------------------------------------------
 # App
 # ---------------------------------------------------------------------------
 
 app = rx.App()
 app.add_page(index)
+app.add_page(history_page)
 add_auth_pages(app)

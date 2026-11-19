@@ -64,7 +64,9 @@ TEMPLATES = [
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        # DB_PATH env var lets Docker mount the file on a persistent volume.
+        # Falls back to db.sqlite3 in the project root for local development.
+        "NAME": Path(os.environ.get("DB_PATH", str(BASE_DIR / "db.sqlite3"))),
     }
 }
 
