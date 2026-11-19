@@ -8,7 +8,10 @@ config = rx.Config(
             "settings_module": "fleet.settings",
             "profile": "integrated",
         }),
+        rx.plugins.SitemapPlugin(),
         rx.plugins.TailwindV4Plugin(),
-        rx.plugins.RadixThemesPlugin(),
+        rx.plugins.RadixThemesPlugin(
+            theme=rx.theme(appearance="light", accent_color="blue", radius="medium")
+        ),
     ],
 )

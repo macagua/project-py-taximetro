@@ -2,6 +2,7 @@
 
 import os
 from pathlib import Path
+import taximeter
 
 try:
     from dotenv import load_dotenv
@@ -19,6 +20,7 @@ DEBUG = os.environ.get("DEBUG", "False") == "True"
 ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
+    "grappelli",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -79,6 +81,7 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Reflex-Django auth — no public registration
@@ -95,3 +98,5 @@ RX_AUTH = {
 
 # Required by reflex-django built-in login (sets sessionid via JS)
 SESSION_COOKIE_HTTPONLY = False
+
+GRAPPELLI_ADMIN_TITLE = taximeter.__doc__
