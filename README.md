@@ -1,3 +1,5 @@
+[![pre-commit](https://github.com/macagua/project-py-taximetro/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/macagua/project-py-taximetro/actions/workflows/pre-commit.yml)
+
 <img width="11520" height="3456" alt="Copia de Banner notebooks" src="https://github.com/user-attachments/assets/1c187a02-2294-4f4b-ba84-63766c051a15" />
 
 # 🚕 TaxiTech Solutions — Sistema de Taxímetro Digital
