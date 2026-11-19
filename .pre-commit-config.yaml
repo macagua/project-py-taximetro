@@ -1,0 +1,49 @@
+repos:
+  # --- Checks genéricos de ficheros ---
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: debug-statements        # detecta breakpoint() / pdb olvidados
+
+  # --- Python: linting + formato con Ruff ---
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.3
+    hooks:
+      - id: ruff                    # lint (incluye isort)
+        args: [--fix]
+      - id: ruff-format             # formato (black-compatible)
+
+  # --- Django: system check ---
+  - repo: local
+    hooks:
+      - id: django-check
+        name: Django system check
+        entry: uv run reflex-django check
+        language: system
+        pass_filenames: false
+        types: [python]
+
+  # --- Reflex: compilación en seco ---
+  - repo: local
+    hooks:
+      - id: reflex-compile
+        name: Reflex compile (dry)
+        entry: uv run reflex compile --dry
+        language: system
+        pass_filenames: false
+        types: [python]
+
+  # --- Tests rápidos (sin los de API, que necesitan BD) ---
+  - repo: local
+    hooks:
+      - id: pytest-fast
+        name: pytest (core + config)
+        entry: uv run pytest tests/test_core.py tests/test_config.py -q
+        language: system
+        pass_filenames: false
+        types: [python]

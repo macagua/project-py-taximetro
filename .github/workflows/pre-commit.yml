@@ -1,0 +1,44 @@
+name: pre-commit
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Configurar Python 3.12
+        run: uv python install 3.12
+
+      - name: Instalar dependencias
+        run: uv sync --frozen
+
+      # Los hooks locales (django-check, reflex-compile) necesitan SECRET_KEY.
+      # Se usa el secreto del repositorio; si no existe, se genera uno temporal
+      # solo para la comprobación (nunca se persiste ni se expone).
+      - name: Crear .env para los hooks
+        run: |
+          SECRET="${{ secrets.SECRET_KEY }}"
+          if [ -z "$SECRET" ]; then
+            SECRET=$(uv run python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())")
+          fi
+          echo "SECRET_KEY=$SECRET" > .env
+          echo "DEBUG=True" >> .env
+
+      - name: Ejecutar pre-commit
+        uses: pre-commit/action@v3.0.1
+        env:
+          # pre-commit/action usa su propio entorno; los hooks locales
+          # ejecutan 'uv run ...' que carga el .venv del proyecto.
+          SKIP: ""
