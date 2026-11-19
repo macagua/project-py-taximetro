@@ -1,12 +1,15 @@
 services:
   app:
     build: .
+    container_name: "taximeter-app"
     restart: unless-stopped
     ports:
       - "3000:3000"
-    env_file:
-      - .env               # SECRET_KEY, DEBUG, etc. — nunca en la imagen
     environment:
+      # Las variables del .env se pasan explícitamente para evitar que Compose
+      # interpole los '$' de SECRET_KEY como variables de shell.
+      SECRET_KEY: "${SECRET_KEY}"
+      DEBUG: "${DEBUG:-False}"
       DB_PATH: /app/data/db.sqlite3
     volumes:
       - taxidata:/app/data     # BD SQLite + rides.jsonl heredado
