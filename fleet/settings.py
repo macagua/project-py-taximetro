@@ -48,7 +48,7 @@ ROOT_URLCONF = "fleet.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "fleet" / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
