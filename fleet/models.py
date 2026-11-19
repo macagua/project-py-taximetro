@@ -47,8 +47,10 @@ class Ride(models.Model):
     # Null while the ride is in progress; set on finish
     duracion_s = models.FloatField(null=True, blank=True, verbose_name="duración (s)")
     total_eur = models.DecimalField(
-        max_digits=8, decimal_places=2,
-        null=True, blank=True,
+        max_digits=8,
+        decimal_places=2,
+        null=True,
+        blank=True,
         verbose_name="total (€)",
     )
 

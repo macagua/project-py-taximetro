@@ -21,6 +21,7 @@ def driver(db):
 # POST /rides
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.django_db
 def test_start_ride_creates_active_ride(driver):
     response = client.post("/rides", user=driver)
@@ -34,6 +35,7 @@ def test_start_ride_creates_active_ride(driver):
 # ---------------------------------------------------------------------------
 # PATCH /rides/{id}/state
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.django_db
 def test_change_state_to_moving(driver):
@@ -61,8 +63,10 @@ def test_change_state_invalid_value_returns_400(driver):
 @pytest.mark.django_db
 def test_change_state_on_finished_ride_returns_404(driver):
     ride = Ride.objects.create(
-        driver=driver, status=Ride.STATUS_DONE,
-        duracion_s=60.0, total_eur="1.20",
+        driver=driver,
+        status=Ride.STATUS_DONE,
+        duracion_s=60.0,
+        total_eur="1.20",
     )
     response = client.patch(
         f"/rides/{ride.pk}/state",
@@ -75,6 +79,7 @@ def test_change_state_on_finished_ride_returns_404(driver):
 # ---------------------------------------------------------------------------
 # POST /rides/{id}/finish
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.django_db
 def test_finish_ride(driver):
@@ -96,8 +101,10 @@ def test_finish_ride(driver):
 @pytest.mark.django_db
 def test_finish_already_finished_returns_404(driver):
     ride = Ride.objects.create(
-        driver=driver, status=Ride.STATUS_DONE,
-        duracion_s=60.0, total_eur="1.20",
+        driver=driver,
+        status=Ride.STATUS_DONE,
+        duracion_s=60.0,
+        total_eur="1.20",
     )
     response = client.post(
         f"/rides/{ride.pk}/finish",
@@ -111,11 +118,14 @@ def test_finish_already_finished_returns_404(driver):
 # GET /rides
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.django_db
 def test_list_rides_today(driver):
     Ride.objects.create(
-        driver=driver, status=Ride.STATUS_DONE,
-        duracion_s=60.0, total_eur="1.20",
+        driver=driver,
+        status=Ride.STATUS_DONE,
+        duracion_s=60.0,
+        total_eur="1.20",
     )
     response = client.get("/rides", user=driver)
     assert response.status_code == 200
@@ -126,8 +136,10 @@ def test_list_rides_today(driver):
 def test_list_rides_excludes_other_driver(driver):
     other = User.objects.create_user(username="otro", password="segura1234")
     Ride.objects.create(
-        driver=other, status=Ride.STATUS_DONE,
-        duracion_s=60.0, total_eur="1.20",
+        driver=other,
+        status=Ride.STATUS_DONE,
+        duracion_s=60.0,
+        total_eur="1.20",
     )
     response = client.get("/rides", user=driver)
     assert response.status_code == 200
@@ -137,8 +149,10 @@ def test_list_rides_excludes_other_driver(driver):
 @pytest.mark.django_db
 def test_list_rides_filter_by_date(driver):
     Ride.objects.create(
-        driver=driver, status=Ride.STATUS_DONE,
-        duracion_s=60.0, total_eur="1.20",
+        driver=driver,
+        status=Ride.STATUS_DONE,
+        duracion_s=60.0,
+        total_eur="1.20",
     )
     response = client.get("/rides?date=2000-01-01", user=driver)
     assert response.status_code == 200

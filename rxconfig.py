@@ -4,10 +4,12 @@ from reflex_django.plugins import ReflexDjangoPlugin
 config = rx.Config(
     app_name="fleet",
     plugins=[
-        ReflexDjangoPlugin(config={
-            "settings_module": "fleet.settings",
-            "profile": "integrated",
-        }),
+        ReflexDjangoPlugin(
+            config={
+                "settings_module": "fleet.settings",
+                "profile": "integrated",
+            }
+        ),
         rx.plugins.SitemapPlugin(),
         rx.plugins.TailwindV4Plugin(),
         rx.plugins.RadixThemesPlugin(

@@ -6,6 +6,7 @@ import taximeter
 
 try:
     from dotenv import load_dotenv
+
     load_dotenv()
 except ImportError:
     pass  # python-dotenv optional; SECRET_KEY must be set via the environment
@@ -71,7 +72,9 @@ DATABASES = {
 }
 
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+    },
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
@@ -94,7 +97,7 @@ RX_AUTH = {
     "LOGOUT_REDIRECT_URL": "/login",
     "LOGIN_FIELDS": ["username"],
     "PASSWORD_MIN_LENGTH": 8,
-    "SIGNUP_ENABLED": False,       # users created with createsuperuser only
+    "SIGNUP_ENABLED": False,  # users created with createsuperuser only
     "PASSWORD_RESET_ENABLED": False,
 }
 

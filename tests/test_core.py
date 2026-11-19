@@ -51,7 +51,7 @@ class TestRideMixed:
         # clock: init=0, set_moving=0 (no tick, already parado→en_marcha at t=0)
         # Actually: init=0, set_moving ticks at 0 (0s stopped=0€), set_stopped ticks at 5 (5s moving=0.25€), finish at 10 (5s stopped=0.10€)
         ride = make_ride(0.0, 0.0, 5.0, 10.0)
-        ride.set_moving()   # ticks: 0→0, state→en_marcha
+        ride.set_moving()  # ticks: 0→0, state→en_marcha
         ride.set_stopped()  # ticks: 0→5, state→parado
         assert ride.finish() == Decimal("0.35")
 
@@ -72,7 +72,7 @@ class TestRedundantCommand:
     def test_redundant_does_not_change_fare(self):
         # 10s stopped, then redundant set_stopped — fare should still be 10*0.02
         ride = make_ride(0.0, 10.0, 10.0)
-        ride.set_stopped()   # redundant — returns False, no tick
+        ride.set_stopped()  # redundant — returns False, no tick
         assert ride.finish() == Decimal("0.20")
 
 
@@ -81,7 +81,7 @@ class TestRounding:
         # 0.1s moving: 0.1 * 0.05 = 0.005
         # ROUND_HALF_UP → 0.01; ROUND_HALF_EVEN → 0.00 (rounds to even)
         ride = make_ride(0.0, 0.0, 0.1)
-        ride.set_moving()   # ticks at 0 (0s stopped = 0€), state→en_marcha
+        ride.set_moving()  # ticks at 0 (0s stopped = 0€), state→en_marcha
         assert ride.finish() == Decimal("0.01")
 
     def test_finish_returns_two_decimal_places(self):

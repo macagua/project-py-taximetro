@@ -26,11 +26,7 @@ _RIDE_BANNER = """
 
 def show_banner() -> None:
     """Show Menu banner"""
-    print(
-        Template(_BANNER).substitute(
-            title=taximeter.__doc__
-        )
-    )
+    print(Template(_BANNER).substitute(title=taximeter.__doc__))
 
 
 def ride_loop(ride) -> None:
@@ -68,7 +64,11 @@ def ride_loop(ride) -> None:
                 log.exception("Error al finalizar carrera")
                 print("  Error al guardar la carrera. Consulta el log.")
                 return
-            log.info("Carrera finalizada — duración %.1f s, total %s €", ride.duration_s, total)
+            log.info(
+                "Carrera finalizada — duración %.1f s, total %s €",
+                ride.duration_s,
+                total,
+            )
             print(f"\n  Total: {total} €\n")
             return
         else:
@@ -100,13 +100,17 @@ def main_loop(taximeter: Taximeter) -> None:
             else:
                 print(f"\n  Carreras hoy: {count}  |  Total acumulado: {total} €\n")
                 for i, r in enumerate(history.rides_today(), 1):
-                    print(f"  {i}. {r['fecha']}  {r['duracion_s']} s  {r['total_eur']} €")
+                    print(
+                        f"  {i}. {r['fecha']}  {r['duracion_s']} s  {r['total_eur']} €"
+                    )
                 print()
         elif cmd == "q":
             print("Cerrando taxímetro. ¡Hasta pronto!")
             break
         else:
-            print(f"Comando '{cmd}' no reconocido. Opciones: s (iniciar), h (historial), q (salir)")
+            print(
+                f"Comando '{cmd}' no reconocido. Opciones: s (iniciar), h (historial), q (salir)"
+            )
 
 
 def _django_authenticate() -> bool:
@@ -123,12 +127,14 @@ def _django_authenticate() -> bool:
 
     try:
         import dotenv
+
         dotenv.load_dotenv()
     except ImportError:
         pass  # python-dotenv optional; SECRET_KEY must be set some other way
 
     try:
         import django
+
         django.setup()
     except Exception as exc:
         logs.get().warning("Django no disponible, omitiendo autenticación: %s", exc)

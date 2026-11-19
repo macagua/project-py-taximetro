@@ -59,7 +59,5 @@ class Command(BaseCommand):
 
         verb = "se importarían" if dry_run else "importadas"
         self.stdout.write(
-            self.style.SUCCESS(
-                f"{imported} carrera(s) {verb}, {skipped} ignoradas."
-            )
+            self.style.SUCCESS(f"{imported} carrera(s) {verb}, {skipped} ignoradas.")
         )

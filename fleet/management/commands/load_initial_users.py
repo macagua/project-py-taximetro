@@ -4,10 +4,34 @@ from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
 INITIAL_USERS = [
-    {"username": "admin",    "password": "admin",        "email": "admin@test.com", "is_superuser": True,  "is_staff": True},
-    {"username": "anapoleo", "password": "c@rolina123",  "email": "anapoleo@gmail.com", "is_superuser": False, "is_staff": True},
-    {"username": "leonardo", "password": "caballero123", "email": "leonardocaballero@gmail.com", "is_superuser": False, "is_staff": True},
-    {"username": "francisco", "password": "c@st!llo123", "email": "francisco.castillo@gmail.com", "is_superuser": False, "is_staff": True},
+    {
+        "username": "admin",
+        "password": "admin",
+        "email": "admin@test.com",
+        "is_superuser": True,
+        "is_staff": True,
+    },
+    {
+        "username": "anapoleo",
+        "password": "c@rolina123",
+        "email": "anapoleo@gmail.com",
+        "is_superuser": False,
+        "is_staff": True,
+    },
+    {
+        "username": "leonardo",
+        "password": "caballero123",
+        "email": "leonardocaballero@gmail.com",
+        "is_superuser": False,
+        "is_staff": True,
+    },
+    {
+        "username": "francisco",
+        "password": "c@st!llo123",
+        "email": "francisco.castillo@gmail.com",
+        "is_superuser": False,
+        "is_staff": True,
+    },
 ]
 
 
@@ -24,6 +48,8 @@ class Command(BaseCommand):
                 user.is_superuser = data["is_superuser"]
                 user.is_staff = data["is_staff"]
                 user.save()
-                self.stdout.write(self.style.SUCCESS(f"  ✓ Usuario creado: {data['username']}"))
+                self.stdout.write(
+                    self.style.SUCCESS(f"  ✓ Usuario creado: {data['username']}")
+                )
             else:
                 self.stdout.write(f"  · Ya existe: {data['username']}")

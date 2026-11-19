@@ -10,7 +10,6 @@ from reflex_django.auth import login_required
 from reflex_django.pages.decorators import page
 from reflex_django.states import AppState
 
-from rxconfig import config
 from taximeter.core import RATE_STOPPED, RATE_MOVING
 from taximeter import history
 
@@ -19,10 +18,11 @@ from taximeter import history
 # History State
 # ---------------------------------------------------------------------------
 
+
 class HistoryState(AppState):
     """State for the /history page."""
 
-    selected_date: str = ""           # YYYY-MM-DD; empty → today
+    selected_date: str = ""  # YYYY-MM-DD; empty → today
     rides: list[dict] = []
     total_hoy: str = "0.00"
     ride_count: int = 0
@@ -41,27 +41,35 @@ class HistoryState(AppState):
         # Django 6 async ORM — avoids SynchronousOnlyOperation inside the
         # running asyncio event loop that Reflex/ASGI maintains.
         rows = []
-        async for r in Ride.objects.select_related("driver").filter(
-            driver=self.request.user,
-            status=Ride.STATUS_DONE,
-            fecha__date=target,
-        ).order_by("-fecha"):
-            rows.append({
-                "hora": r.fecha.astimezone().strftime("%H:%M:%S"),
-                "duracion": f"{r.duracion_s:.0f} s" if r.duracion_s is not None else "—",
-                "total": f"{r.total_eur} €" if r.total_eur is not None else "—",
-                "conductor": (
-                    f"{r.driver.first_name} {r.driver.last_name}".strip()
-                    or r.driver.username
-                ) if r.driver_id else "—",
-            })
+        async for r in (
+            Ride.objects.select_related("driver")
+            .filter(
+                driver=self.request.user,
+                status=Ride.STATUS_DONE,
+                fecha__date=target,
+            )
+            .order_by("-fecha")
+        ):
+            rows.append(
+                {
+                    "hora": r.fecha.astimezone().strftime("%H:%M:%S"),
+                    "duracion": f"{r.duracion_s:.0f} s"
+                    if r.duracion_s is not None
+                    else "—",
+                    "total": f"{r.total_eur} €" if r.total_eur is not None else "—",
+                    "conductor": (
+                        f"{r.driver.first_name} {r.driver.last_name}".strip()
+                        or r.driver.username
+                    )
+                    if r.driver_id
+                    else "—",
+                }
+            )
 
         self.rides = rows
         self.ride_count = len(rows)
         total = sum(
-            Decimal(r["total"].replace(" €", ""))
-            for r in rows
-            if r["total"] != "—"
+            Decimal(r["total"].replace(" €", "")) for r in rows if r["total"] != "—"
         )
         self.total_hoy = str(total) + " €"
 
@@ -75,6 +83,7 @@ class HistoryState(AppState):
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _fare_from_segments(
     segments: list[list],
@@ -105,6 +114,7 @@ def _fare_from_segments(
 # State
 # ---------------------------------------------------------------------------
 
+
 class TaxiState(AppState):
     """Taximeter page state.
 
@@ -113,10 +123,10 @@ class TaxiState(AppState):
     """
 
     ride_active: bool = False
-    vehicle_state: str = "parado"       # "parado" | "en_marcha"
-    segments: list[list] = []           # closed segments
-    segment_start: float = 0.0          # start of the current open segment
-    ride_start: float = 0.0             # ride start for duration_s
+    vehicle_state: str = "parado"  # "parado" | "en_marcha"
+    segments: list[list] = []  # closed segments
+    segment_start: float = 0.0  # start of the current open segment
+    ride_start: float = 0.0  # ride start for duration_s
     fare_display: str = "0.00"
 
     # --- ride control ---
@@ -206,6 +216,7 @@ class TaxiState(AppState):
 # Components
 # ---------------------------------------------------------------------------
 
+
 def _status_badge() -> rx.Component:
     return rx.badge(
         rx.cond(TaxiState.vehicle_state == "en_marcha", "EN MARCHA", "PARADO"),
@@ -235,7 +246,9 @@ def _ride_buttons() -> rx.Component:
         rx.button(
             "Parado",
             on_click=TaxiState.set_stopped,
-            disabled=rx.cond(inactive | (TaxiState.vehicle_state == "parado"), True, False),
+            disabled=rx.cond(
+                inactive | (TaxiState.vehicle_state == "parado"), True, False
+            ),
             color_scheme="orange",
             size="4",
             radius="large",
@@ -244,7 +257,9 @@ def _ride_buttons() -> rx.Component:
         rx.button(
             "En marcha",
             on_click=TaxiState.set_moving,
-            disabled=rx.cond(inactive | (TaxiState.vehicle_state == "en_marcha"), True, False),
+            disabled=rx.cond(
+                inactive | (TaxiState.vehicle_state == "en_marcha"), True, False
+            ),
             color_scheme="green",
             size="4",
             radius="large",
@@ -266,21 +281,19 @@ def taximeter_page_content() -> rx.Component:
                     rx.button("Historial", variant="soft", size="2"),
                     href="/history",
                 ),
-                rx.button("Salir", on_click=TaxiState.logout, variant="ghost", size="2"),
+                rx.button(
+                    "Salir", on_click=TaxiState.logout, variant="ghost", size="2"
+                ),
                 width="100%",
             ),
             rx.divider(),
-
             # State badge (only when ride active)
             rx.cond(TaxiState.ride_active, _status_badge(), rx.text("")),
-
             # Fare display
             _fare_display(),
             rx.divider(),
-
             # State-change buttons (enabled only during a ride)
             _ride_buttons(),
-
             # Iniciar / Finalizar
             rx.cond(
                 TaxiState.ride_active,
@@ -301,7 +314,6 @@ def taximeter_page_content() -> rx.Component:
                     radius="large",
                 ),
             ),
-
             spacing="5",
             padding="1.5em",
             max_width="480px",
@@ -315,6 +327,7 @@ def taximeter_page_content() -> rx.Component:
 # ---------------------------------------------------------------------------
 # History page components
 # ---------------------------------------------------------------------------
+
 
 def _history_table() -> rx.Component:
     return rx.cond(
@@ -364,7 +377,6 @@ def history_page_content() -> rx.Component:
                 width="100%",
             ),
             rx.divider(),
-
             # Date filter
             rx.hstack(
                 rx.text("Fecha:", size="3", weight="medium"),
@@ -377,7 +389,6 @@ def history_page_content() -> rx.Component:
                 align="center",
                 spacing="3",
             ),
-
             # Summary row
             rx.hstack(
                 rx.badge(
@@ -392,10 +403,8 @@ def history_page_content() -> rx.Component:
                 ),
                 spacing="3",
             ),
-
             # Rides table
             _history_table(),
-
             spacing="5",
             padding="1.5em",
             max_width="720px",
@@ -409,6 +418,7 @@ def history_page_content() -> rx.Component:
 # ---------------------------------------------------------------------------
 # Pages
 # ---------------------------------------------------------------------------
+
 
 @page(route="/", login_required=True, on_load=TaxiState.check_redirect)
 def index() -> rx.Component:

@@ -8,7 +8,6 @@ import json
 from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
-from typing import Optional
 
 DEFAULT_PATH = Path("data") / "rides.jsonl"
 
@@ -16,6 +15,7 @@ DEFAULT_PATH = Path("data") / "rides.jsonl"
 def _django_ready() -> bool:
     try:
         from django.conf import settings
+
         return bool(getattr(settings, "DATABASES", None))
     except Exception:
         return False
@@ -24,6 +24,7 @@ def _django_ready() -> bool:
 # ---------------------------------------------------------------------------
 # Public API  (same signatures as before)
 # ---------------------------------------------------------------------------
+
 
 def save(
     duration_s: float,
@@ -34,6 +35,7 @@ def save(
     """Persist one completed ride (sync). Uses ORM when Django is ready."""
     if _django_ready():
         from fleet.models import Ride
+
         Ride.objects.create(duracion_s=duration_s, total_eur=total_eur, driver=driver)
         return
 
@@ -56,11 +58,15 @@ async def asave(
     """Persist one completed ride (async). Required from async event handlers."""
     if _django_ready():
         from fleet.models import Ride
-        await Ride.objects.acreate(duracion_s=duration_s, total_eur=total_eur, driver=driver)
+
+        await Ride.objects.acreate(
+            duracion_s=duration_s, total_eur=total_eur, driver=driver
+        )
         return
 
     # jsonl fallback via sync path wrapped in a thread
     from asgiref.sync import sync_to_async
+
     await sync_to_async(save)(duration_s, total_eur, driver=driver)
 
 
@@ -69,6 +75,7 @@ def rides_today(path: Path = DEFAULT_PATH) -> list[dict]:
     if _django_ready():
         from django.utils import timezone as tz
         from fleet.models import Ride
+
         today = tz.localdate()
         return [
             {

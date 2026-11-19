@@ -8,7 +8,7 @@ from taximeter.config import Tariffs, load as load_tariffs
 
 # Default tariffs kept as module constants for tests that build Ride directly.
 RATE_STOPPED: Decimal = Decimal("0.02")  # €/second when stopped or <20 km/h
-RATE_MOVING:  Decimal = Decimal("0.05")  # €/second when moving
+RATE_MOVING: Decimal = Decimal("0.05")  # €/second when moving
 
 _DEFAULT_TARIFFS = Tariffs(RATE_STOPPED, RATE_MOVING)
 
@@ -31,7 +31,7 @@ class Ride:
     ) -> None:
         self._now = now
         self._tariffs = tariffs
-        self._state: str = "parado"       # "parado" | "en_marcha"
+        self._state: str = "parado"  # "parado" | "en_marcha"
         self._fare: Decimal = Decimal("0")
         self._started_at: float = now()
         self._last_tick: float = self._started_at
@@ -53,7 +53,11 @@ class Ride:
         """Accumulate fare from _last_tick to now at the current rate."""
         now = self._now()
         elapsed = Decimal(str(now - self._last_tick))
-        rate = self._tariffs.moving if self._state == "en_marcha" else self._tariffs.stopped
+        rate = (
+            self._tariffs.moving
+            if self._state == "en_marcha"
+            else self._tariffs.stopped
+        )
         self._fare += elapsed * rate
         self._last_tick = now
 

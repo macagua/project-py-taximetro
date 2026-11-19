@@ -9,6 +9,7 @@ from taximeter import history
 def test_save_creates_ride(tmp_path):
     history.save(10.0, Decimal("0.20"))
     from fleet.models import Ride
+
     assert Ride.objects.filter(duracion_s=10.0, total_eur=Decimal("0.20")).exists()
 
 
@@ -17,6 +18,7 @@ def test_save_appends_records(tmp_path):
     history.save(10.0, Decimal("0.20"))
     history.save(20.0, Decimal("1.00"))
     from fleet.models import Ride
+
     assert Ride.objects.count() == 2
 
 
@@ -24,6 +26,7 @@ def test_save_appends_records(tmp_path):
 def test_save_record_fields(tmp_path):
     history.save(5.5, Decimal("0.11"))
     from fleet.models import Ride
+
     ride = Ride.objects.get()
     assert ride.duracion_s == 5.5
     assert ride.total_eur == Decimal("0.11")
