@@ -169,6 +169,17 @@ class TaxiState(AppState):
 
     @rx.event
     @login_required
+    async def check_redirect(self):
+        """Post-login redirect: superusers and the 'Responsables' group  → /admin/."""
+        user = self.request.user
+        if user.is_superuser:
+            return rx.redirect("/admin/")
+        is_responsable = await user.groups.filter(name="Responsables").aexists()
+        if is_responsable:
+            return rx.redirect("/admin/")
+
+    @rx.event
+    @login_required
     async def logout(self):
         # alogout() tries request.user = AnonymousUser(), which DjangoStateRequest
         # doesn't support (read-only property). Flushing the session directly
@@ -399,7 +410,7 @@ def history_page_content() -> rx.Component:
 # Pages
 # ---------------------------------------------------------------------------
 
-@page(route="/", login_required=True)
+@page(route="/", login_required=True, on_load=TaxiState.check_redirect)
 def index() -> rx.Component:
     return taximeter_page_content()
 
