@@ -1,3 +1,9 @@
+.states
+__pycache__/
+*.db
+assets/external/
+.web
+*.py[cod]
 # Temporal files
 *~
 __pycache__
@@ -8,3 +14,9 @@ __pycache__
 # Taximeter data
 data/*.jsonl
 logs/*.log
+
+# Sqlite3
+*.sqlite3
+
+# Environment secrets
+.env

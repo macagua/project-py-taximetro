@@ -109,12 +109,60 @@ def main_loop(taximeter: Taximeter) -> None:
             print(f"Comando '{cmd}' no reconocido. Opciones: s (iniciar), h (historial), q (salir)")
 
 
+def _django_authenticate() -> bool:
+    """Authenticate the operator via Django before starting the CLI.
+
+    Returns True if authentication succeeded, False otherwise.
+    Skips auth entirely if Django is not configured (no DJANGO_SETTINGS_MODULE
+    and the fleet settings cannot be loaded) so the CLI still works without Django.
+    """
+    import getpass
+    import os
+
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "fleet.settings")
+
+    try:
+        import dotenv
+        dotenv.load_dotenv()
+    except ImportError:
+        pass  # python-dotenv optional; SECRET_KEY must be set some other way
+
+    try:
+        import django
+        django.setup()
+    except Exception as exc:
+        logs.get().warning("Django no disponible, omitiendo autenticación: %s", exc)
+        return True  # let the CLI work without Django
+
+    from django.contrib.auth import authenticate
+
+    print("Acceso restringido. Introduce tus credenciales.")
+    for attempt in range(3):
+        username = input("Usuario: ").strip()
+        password = getpass.getpass("Contraseña: ")
+        user = authenticate(username=username, password=password)
+        if user is not None and user.is_active:
+            logs.get().info("Acceso concedido: %s", username)
+            print(f"Bienvenido, {username}.\n")
+            return True
+        remaining = 2 - attempt
+        msg = "Credenciales incorrectas."
+        if remaining:
+            msg += f" Intentos restantes: {remaining}."
+        print(msg)
+        logs.get().warning("Intento fallido de acceso para usuario: %r", username)
+
+    logs.get().error("Acceso denegado tras 3 intentos fallidos")
+    print("Acceso denegado.")
+    return False
+
+
 def main() -> None:
     """Main program"""
     logs.setup()
     logs.get().info("Taxímetro arrancado")
-    # Show banner and start the main loop
+    if not _django_authenticate():
+        return
     show_banner()
-    # Create an instance of Taximeter and run the main
     main_loop(Taximeter())
     logs.get().info("Taxímetro cerrado")
