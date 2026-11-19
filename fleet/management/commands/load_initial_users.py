@@ -7,6 +7,7 @@ INITIAL_USERS = [
     {"username": "admin",    "password": "admin",        "email": "admin@test.com", "is_superuser": True,  "is_staff": True},
     {"username": "anapoleo", "password": "c@rolina123",  "email": "anapoleo@gmail.com", "is_superuser": False, "is_staff": True},
     {"username": "leonardo", "password": "caballero123", "email": "leonardocaballero@gmail.com", "is_superuser": False, "is_staff": True},
+    {"username": "francisco", "password": "c@st!llo123", "email": "francisco.castillo@gmail.com", "is_superuser": False, "is_staff": True},
 ]
 
 
