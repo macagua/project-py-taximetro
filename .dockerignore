@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+
+# Reflex compiled frontend — rebuilt in the image
+.web/
+*.log
+
+# Data y BD local — persistida en volumen Docker, no en la imagen
+data/
+db.sqlite3
+staticfiles/
+logs/
+
+# Desarrollo
+.env
+.python-version
+*.egg-info/
+
+# Git
+.git/
+.gitignore

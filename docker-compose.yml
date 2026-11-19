@@ -1,0 +1,17 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env               # SECRET_KEY, DEBUG, etc. — nunca en la imagen
+    environment:
+      DB_PATH: /app/data/db.sqlite3
+    volumes:
+      - taxidata:/app/data     # BD SQLite + rides.jsonl heredado
+      - taxilogs:/app/logs     # logs del taxímetro
+
+volumes:
+  taxidata:
+  taxilogs:
