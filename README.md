@@ -148,6 +148,20 @@ Cada fase debe entregarse con:
 
 ---
 
+## 📖 Documentación
+
+### Instalación
+
+Para consultar la guía de instalación consulte el archivo [DEVELOP.md](./INSTALL.md).
+
+---
+
+### Desarrollo
+
+Para consultar la guía de desarrollo consulte el archivo [DEVELOP.md](./DEVELOP.md).
+
+---
+
 ## 📚 Recursos
 
 ### Documentación oficial de Python
